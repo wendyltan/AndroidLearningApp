@@ -7,10 +7,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.StringReader;
+
+import javax.xml.parsers.SAXParserFactory;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -47,12 +51,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Response response = client.newCall(request).execute();
                     String responseData = response.body().string();
 //                    showResponse(responseData);
-                    parseXMLWithPull(responseData);
+//                    parseXMLWithPull(responseData);
+                    parseXMLWithSAX(responseData);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
             }
         }).start();
+    }
+
+    //三种方法对xml解析：
+
+    private void parseXMLWithSAX(String responseData) {
+        try{
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            XMLReader xmlReader = factory.newSAXParser().getXMLReader();
+            ContentHandler handler = new ContentHandler();
+            xmlReader.setContentHandler(handler);
+            xmlReader.parse(new InputSource(new StringReader(responseData)));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void parseXMLWithPull(String responseData) {
